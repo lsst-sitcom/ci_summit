@@ -23,7 +23,7 @@ import os
 import unittest
 
 import lsst.afw.image as afwImage
-from lsst.daf.butler import DatasetType
+from lsst.daf.butler.tests import addDatasetType
 import lsst.utils.tests
 from lsst.utils import getPackageDir
 
@@ -40,13 +40,12 @@ class BestEffortIsrTestCase(lsst.utils.tests.TestCase):
         for col in cls.bestEffortIsr.collections:
             cls.bestEffortIsr.butler.registry.registerCollection(col)
 
-        quickLookType = DatasetType(
+        addDatasetType(
+            cls.bestEffortIsr.butler,
             "quickLookExp",
-            dimensions=["instrument", "exposure", "detector"],
-            storageClass="ExposureF",
-            universe=cls.bestEffortIsr.butler.registry.dimensions,
+            ["instrument", "exposure", "detector"],
+            "ExposureF",
         )
-        cls.bestEffortIsr.butler.registry.registerDatasetType(quickLookType)
 
         cls.dataId = {"day_obs": 20210121, "seq_num": 743, "detector": 0}
 

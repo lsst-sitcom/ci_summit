@@ -23,7 +23,8 @@ import os
 import tempfile
 import unittest
 
-from lsst.daf.butler import Butler, DatasetType
+from lsst.daf.butler import Butler
+from lsst.daf.butler.tests import addDatasetType
 import lsst.utils.tests
 from lsst.utils import getPackageDir
 
@@ -47,13 +48,12 @@ class ImageExaminerTestCase(lsst.utils.tests.TestCase):
         for col in cls.bestEffort.collections:
             cls.bestEffort.butler.registry.registerCollection(col)
 
-        quickLookType = DatasetType(
+        addDatasetType(
+            cls.bestEffort.butler,
             "quickLookExp",
-            dimensions=["instrument", "exposure", "detector"],
-            storageClass="ExposureF",
-            universe=cls.bestEffort.butler.registry.dimensions,
+            ["instrument", "exposure", "detector"],
+            "ExposureF",
         )
-        cls.bestEffort.butler.registry.registerDatasetType(quickLookType)
 
         cls.outputDir = tempfile.mkdtemp()
         cls.outputFilename = os.path.join(cls.outputDir, "testImageExaminer.jpg")
