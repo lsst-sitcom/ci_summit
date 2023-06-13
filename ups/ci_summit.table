@@ -2,6 +2,7 @@
 # - Any package whose API is used directly should be listed explicitly.
 setupRequired(afw)
 setupRequired(ci_builder)
+setupRequired(daf_butler)
 setupRequired(summit_utils)
 setupRequired(testdata_ci_summit)
 setupRequired(utils)

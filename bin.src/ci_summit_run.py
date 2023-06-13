@@ -40,4 +40,6 @@ class SummitDefineVisits(DefineVisits):
     collectionsName = f"{INSTRUMENT_NAME}/raw/all"
 
 
+ciRunner.register("test", index_command := index_command + 1)(TestRunner)
+
 ciRunner.run()

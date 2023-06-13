@@ -1,4 +1,4 @@
-# This file is part of summit_utils.
+# This file is part of ci_summit.
 #
 # Developed for the LSST Data Management System.
 # This product includes software developed by the LSST Project
@@ -19,29 +19,35 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
+import os
 import unittest
 
+import lsst.afw.image as afwImage
+from lsst.daf.butler import DatasetType
 import lsst.utils.tests
+from lsst.utils import getPackageDir
 
 from lsst.summit.utils.bestEffort import BestEffortIsr
 import lsst.summit.utils.butlerUtils as butlerUtils
-import lsst.afw.image as afwImage
 
 
 class BestEffortIsrTestCase(lsst.utils.tests.TestCase):
     @classmethod
-    def setUpClass(cls):
-        try:
-            cls.bestEffortIsr = BestEffortIsr()
-        except FileNotFoundError:
-            raise unittest.SkipTest(
-                "Skipping tests that require the LATISS butler repo."
-            )
+    def setUp(cls):
+        butlerPath = os.path.join(getPackageDir("ci_summit"), "DATA")
+        cls.bestEffortIsr = BestEffortIsr(repoString=butlerPath)
 
-        # chosen as this is available in the following locations - collections:
-        # NCSA - LATISS/raw/all
-        # TTS - LATISS-test-data-tts
-        # summit - LATISS_test_data
+        for col in cls.bestEffortIsr.collections:
+            cls.bestEffortIsr.butler.registry.registerCollection(col)
+
+        quickLookType = DatasetType(
+            "quickLookExp",
+            dimensions=["instrument", "exposure", "detector"],
+            storageClass="ExposureF",
+            universe=cls.bestEffortIsr.butler.registry.dimensions,
+        )
+        cls.bestEffortIsr.butler.registry.registerDatasetType(quickLookType)
+
         cls.dataId = {"day_obs": 20210121, "seq_num": 743, "detector": 0}
 
     def test_getExposure(self):
@@ -80,7 +86,7 @@ class BestEffortIsrTestCase(lsst.utils.tests.TestCase):
         dataId = self.dataId
         dataId.pop("detector")
         with self.assertRaises(ValueError):
-            self.bestEffortIsr.getExposure(dataId)
+            self.bestEffortIsr.getExposure(dataId, forceRemake=True)
 
 
 class TestMemory(lsst.utils.tests.MemoryTestCase):

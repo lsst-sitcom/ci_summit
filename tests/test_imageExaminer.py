@@ -1,4 +1,4 @@
-# This file is part of summit_utils.
+# This file is part of ci_summit.
 #
 # Developed for the LSST Data Management System.
 # This product includes software developed by the LSST Project
@@ -19,32 +19,42 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
-import unittest
-import tempfile
 import os
+import tempfile
+import unittest
 
+from lsst.daf.butler import Butler, DatasetType
 import lsst.utils.tests
+from lsst.utils import getPackageDir
 
-from lsst.summit.utils.butlerUtils import makeDefaultLatissButler
 from lsst.summit.utils import ImageExaminer
 from lsst.summit.utils.bestEffort import BestEffortIsr
+from lsst.summit.utils.butlerUtils import getLatissDefaultCollections
 
 
 class ImageExaminerTestCase(lsst.utils.tests.TestCase):
     @classmethod
     def setUpClass(cls):
-        try:
-            cls.butler = makeDefaultLatissButler()
-        except FileNotFoundError:
-            raise unittest.SkipTest(
-                "Skipping tests that require the LATISS butler repo."
-            )
-
-        # Chosen to work on the TTS, summit and NCSA
+        butlerPath = os.path.join(getPackageDir("ci_summit"), "DATA")
+        cls.butler = Butler(
+            butlerPath,
+            collections=getLatissDefaultCollections(),
+            writeable=False,
+            instrument="LATISS",
+        )
         cls.dataId = {"day_obs": 20200315, "seq_num": 120, "detector": 0}
-        cls.bestEffort = (
-            BestEffortIsr()
-        )  # should always succeed if makeDefaultLatissButler works
+        cls.bestEffort = BestEffortIsr(repoString=butlerPath)
+        for col in cls.bestEffort.collections:
+            cls.bestEffort.butler.registry.registerCollection(col)
+
+        quickLookType = DatasetType(
+            "quickLookExp",
+            dimensions=["instrument", "exposure", "detector"],
+            storageClass="ExposureF",
+            universe=cls.bestEffort.butler.registry.dimensions,
+        )
+        cls.bestEffort.butler.registry.registerDatasetType(quickLookType)
+
         cls.outputDir = tempfile.mkdtemp()
         cls.outputFilename = os.path.join(cls.outputDir, "testImageExaminer.jpg")
 

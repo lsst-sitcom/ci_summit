@@ -1,4 +1,4 @@
-# This file is part of summit_utils.
+# This file is part of ci_summit.
 #
 # Developed for the LSST Data Management System.
 # This product includes software developed by the LSST Project
@@ -27,30 +27,35 @@ import datetime
 from unittest import mock
 from numpy.random import shuffle
 from astro_metadata_translator import ObservationInfo
+import matplotlib as mpl
 
 import lsst.utils.tests
 
-import matplotlib as mpl
+from lsst.daf.butler import Butler
+from lsst.summit.utils.butlerUtils import getLatissDefaultCollections
+from lsst.summit.utils.nightReport import NightReport, ColorAndMarker
+from lsst.utils import getPackageDir
+
 
 mpl.use("Agg")
-
-from lsst.summit.utils.nightReport import NightReport, ColorAndMarker  # noqa: E402
-import lsst.summit.utils.butlerUtils as butlerUtils  # noqa: E402
 
 
 class NightReportTestCase(lsst.utils.tests.TestCase):
     @classmethod
     def setUpClass(cls):
-        try:
-            cls.butler = butlerUtils.makeDefaultLatissButler()
-        except FileNotFoundError:
-            raise unittest.SkipTest(
-                "Skipping tests that require the LATISS butler repo."
-            )
+        butlerPath = os.path.join(getPackageDir("ci_summit"), "DATA")
+        cls.butler = Butler(
+            butlerPath,
+            collections=getLatissDefaultCollections(),
+            writeable=False,
+            instrument="LATISS",
+        )
+        for col in getLatissDefaultCollections():
+            cls.butler.registry.registerCollection(col)
 
-        cls.dayObs = 20200314  # has 377 images and data also exists on the TTS & summit
+        cls.dayObs = 20210121
 
-        # Do the init in setUpClass because this takes about 35s for 20200314
+        # Do the init in setUpClass because this takes long
         cls.report = NightReport(cls.butler, cls.dayObs)
         # number of images isn't necessarily the same as the number for the
         # the dayObs in the registry becacuse of the test stands/summit
