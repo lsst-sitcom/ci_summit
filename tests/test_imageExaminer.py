@@ -31,30 +31,35 @@ from lsst.summit.utils.bestEffort import BestEffortIsr
 
 
 class ImageExaminerTestCase(lsst.utils.tests.TestCase):
-
     @classmethod
     def setUpClass(cls):
         try:
             cls.butler = makeDefaultLatissButler()
         except FileNotFoundError:
-            raise unittest.SkipTest("Skipping tests that require the LATISS butler repo.")
+            raise unittest.SkipTest(
+                "Skipping tests that require the LATISS butler repo."
+            )
 
         # Chosen to work on the TTS, summit and NCSA
-        cls.dataId = {'day_obs': 20200315, 'seq_num': 120, 'detector': 0}
-        cls.bestEffort = BestEffortIsr()  # should always succeed if makeDefaultLatissButler works
+        cls.dataId = {"day_obs": 20200315, "seq_num": 120, "detector": 0}
+        cls.bestEffort = (
+            BestEffortIsr()
+        )  # should always succeed if makeDefaultLatissButler works
         cls.outputDir = tempfile.mkdtemp()
-        cls.outputFilename = os.path.join(cls.outputDir, 'testImageExaminer.jpg')
+        cls.outputFilename = os.path.join(cls.outputDir, "testImageExaminer.jpg")
 
     def test_imageExaminer(self):
         """Test that the animator produces a large file without worrying about
         the contents?
         """
         exp = self.bestEffort.getExposure(self.dataId)
-        imExam = ImageExaminer(exp,
-                               doTweakCentroid=True,
-                               boxHalfSize=105,
-                               doForceCoM=False,
-                               savePlots=self.outputFilename)
+        imExam = ImageExaminer(
+            exp,
+            doTweakCentroid=True,
+            boxHalfSize=105,
+            doForceCoM=False,
+            savePlots=self.outputFilename,
+        )
         imExam.plot()
 
         self.assertTrue(os.path.isfile(self.outputFilename))

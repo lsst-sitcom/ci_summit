@@ -29,19 +29,20 @@ import lsst.afw.image as afwImage
 
 
 class BestEffortIsrTestCase(lsst.utils.tests.TestCase):
-
     @classmethod
     def setUpClass(cls):
         try:
             cls.bestEffortIsr = BestEffortIsr()
         except FileNotFoundError:
-            raise unittest.SkipTest("Skipping tests that require the LATISS butler repo.")
+            raise unittest.SkipTest(
+                "Skipping tests that require the LATISS butler repo."
+            )
 
         # chosen as this is available in the following locations - collections:
         # NCSA - LATISS/raw/all
         # TTS - LATISS-test-data-tts
         # summit - LATISS_test_data
-        cls.dataId = {'day_obs': 20210121, 'seq_num': 743, 'detector': 0}
+        cls.dataId = {"day_obs": 20210121, "seq_num": 743, "detector": 0}
 
     def test_getExposure(self):
         # in most locations this will load a pre-made image
@@ -56,7 +57,9 @@ class BestEffortIsrTestCase(lsst.utils.tests.TestCase):
         """Test getting with an expRecord. This requires also passing in
         the detector number as a kwarg.
         """
-        expRecord = butlerUtils.getExpRecordFromDataId(self.bestEffortIsr.butler, self.dataId)
+        expRecord = butlerUtils.getExpRecordFromDataId(
+            self.bestEffortIsr.butler, self.dataId
+        )
 
         exp = self.bestEffortIsr.getExposure(expRecord, detector=0)
         self.assertIsInstance(exp, afwImage.Exposure)
@@ -67,14 +70,15 @@ class BestEffortIsrTestCase(lsst.utils.tests.TestCase):
 
         # Try forceRemake with an expRecord and a detector as a kwarg
         # as forceRemake has a different code path, as it has to get a raw
-        exp = self.bestEffortIsr.getExposure(expRecord.dataId, detector=0, forceRemake=True)
+        exp = self.bestEffortIsr.getExposure(
+            expRecord.dataId, detector=0, forceRemake=True
+        )
         self.assertIsInstance(exp, afwImage.Exposure)
 
     def test_raises(self):
-        """Ensure function cannot be called without specifying a detector.
-        """
+        """Ensure function cannot be called without specifying a detector."""
         dataId = self.dataId
-        dataId.pop('detector')
+        dataId.pop("detector")
         with self.assertRaises(ValueError):
             self.bestEffortIsr.getExposure(dataId)
 
