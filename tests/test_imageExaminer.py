@@ -19,6 +19,7 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
+import matplotlib
 import os
 import tempfile
 import unittest
@@ -31,6 +32,9 @@ from lsst.utils import getPackageDir
 from lsst.summit.utils import ImageExaminer
 from lsst.summit.utils.bestEffort import BestEffortIsr
 from lsst.summit.utils.butlerUtils import getLatissDefaultCollections
+
+
+matplotlib.use("Agg")
 
 
 class ImageExaminerTestCase(lsst.utils.tests.TestCase):
