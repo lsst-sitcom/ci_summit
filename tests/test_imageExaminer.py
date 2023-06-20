@@ -44,7 +44,7 @@ class ImageExaminerTestCase(lsst.utils.tests.TestCase):
         cls.butler = Butler(
             butlerPath,
             collections=getLatissDefaultCollections(),
-            writeable=False,
+            writeable=True,
             instrument="LATISS",
         )
         cls.dataId = {"day_obs": 20200315, "seq_num": 120, "detector": 0}

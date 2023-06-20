@@ -47,7 +47,7 @@ class NightReportTestCase(lsst.utils.tests.TestCase):
         cls.butler = Butler(
             butlerPath,
             collections=getLatissDefaultCollections(),
-            writeable=False,
+            writeable=True,
             instrument="LATISS",
         )
         for col in getLatissDefaultCollections():
