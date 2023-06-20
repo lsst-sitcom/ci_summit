@@ -11,7 +11,7 @@ config.log
 
 # Built by sconsUtils
 version.py
-bin/
+bin/ci_summit_run.py
 
 # Pytest
 tests/.tests
@@ -19,3 +19,7 @@ pytest_session.txt
 .cache/
 .pytest_cache
 .coverage
+
+# Default repo created by ci_summit_run.py
+# (and custom with same prefix)
+DATA*
